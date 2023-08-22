@@ -1,8 +1,8 @@
 import {useState, useEffect} from 'react';
-import axios from "axios";
 import WebSpeechPromptInput from "../WebSpeechPromptInput/WebSpeechPromptInput";
 import {ResponseInterface} from "../PromptResponseList/response-interface";
 import PromptResponseList from "../PromptResponseList/PromptResponseList";
+import ApiClient from '../../api';
 
 type ModelValueType = 'gpt' | 'codex' | 'image';
 const OrderGpt = () => {
@@ -29,7 +29,7 @@ const OrderGpt = () => {
   useEffect(() => {
     if (!initialized) {
       // Send a POST request to the API with the prompt in the request body
-      axios.post('/api/conversation', {}).then((response) => {
+      ApiClient.post('/conversation', {}).then((response) => {
         console.log('start conversation', response);
         setInitialized (true);
       });
@@ -122,7 +122,7 @@ const OrderGpt = () => {
 
     try {
       // Send a POST request to the API with the prompt in the request body
-      const response = await axios.post('/api/prompt', {
+      const response = await ApiClient.post('/prompt', {
         prompt: _prompt,
         model: modelValue
       });
