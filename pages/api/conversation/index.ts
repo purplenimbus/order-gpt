@@ -144,7 +144,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<any>) => {
       try {
         CONVERSATION = [...BASE_CONVERSATION];
         console.log("start conversation");
-        return res.status(200).send({});
+        return res.status(200).send(CONVERSATION);
       } catch (error) {
         handleError(error, res);
       }

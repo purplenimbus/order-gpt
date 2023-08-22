@@ -5,7 +5,14 @@ import PromptResponseList from "../PromptResponseList/PromptResponseList";
 import ApiClient from '../../api';
 
 type ModelValueType = 'gpt' | 'codex' | 'image';
+
+type ConversationType = {
+  role: string;
+  content: string;
+}
+
 const OrderGpt = () => {
+  const [conversation, setConversation] = useState<ConversationType>();
   const [initialized, setInitialized] = useState<boolean>(false);
   const [responseList, setResponseList] = useState<ResponseInterface[]>([]);
   const [prompt, setPrompt] = useState<string>('');
@@ -31,6 +38,7 @@ const OrderGpt = () => {
       // Send a POST request to the API with the prompt in the request body
       ApiClient.post('/conversation', {}).then((response) => {
         console.log('start conversation', response);
+        setConversation(response.data);
         setInitialized (true);
       });
     }
@@ -123,6 +131,7 @@ const OrderGpt = () => {
     try {
       // Send a POST request to the API with the prompt in the request body
       const response = await ApiClient.post('/prompt', {
+        conversation,
         prompt: _prompt,
         model: modelValue
       });
@@ -132,8 +141,9 @@ const OrderGpt = () => {
           image: response.data,
         });
       } else {
+        setConversation(response.data.conversation);
         updateResponse(uniqueId, {
-          response: response.data.trim(),
+          response: response.data.content.trim(),
         });
       }
 

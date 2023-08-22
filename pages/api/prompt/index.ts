@@ -12,10 +12,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<any>) => {
 
   switch (method) {
     case "POST":
-      const conversation = [...BASE_CONVERSATION];
-
       // Get the prompt from the request body
-      const { prompt, model = "gpt" } = req.body;
+      const { prompt, conversation, model = "gpt" } = req.body;
 
       // Check if prompt is present in the request
       if (!prompt) {
@@ -24,6 +22,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<any>) => {
           .status(400)
           .send({ error: "Prompt is missing in the request" });
       }
+      conversation.push({ role: 'user', content: prompt });
 
       try {
         const completion = await openai.chat.completions.create({
@@ -36,7 +35,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<any>) => {
         conversation.push(completion.choices[0].message as any);
 
         // Send the generated text as the response
-        return res.send(completion.choices[0].message.content);
+        return res.send({ conversation, content: completion.choices[0].message.content });
       } catch (error) {
         handleError(error, res);
       }
