@@ -289,7 +289,12 @@ const WebSpeechPromptInput: React.FC<WebSpeechPromptInputProps> = ({
   }, [transcript]);
 
   return (
-    <div className={classNames(className, "bg-neutral-800 rounded-xl w-full flex items-center justify-between")}>
+    <div
+      className={classNames(
+        className,
+        "bg-neutral-800 rounded-xl w-full flex items-center justify-between"
+      )}
+    >
       <div>
         <ContentEditable
           innerRef={contentEditableRef}
@@ -304,11 +309,13 @@ const WebSpeechPromptInput: React.FC<WebSpeechPromptInputProps> = ({
           <Image width={50} height={50} src={talkButtonImage} alt="Lets Talk" />
         </button>
       </div>
-      {showSubmit && <button
-        id="submit-button"
-        className={isLoading ? "loading" : ""}
-        onClick={onSubmit}
-      ></button>}
+      {showSubmit && (
+        <button
+          id="submit-button"
+          className={isLoading ? "loading" : ""}
+          onClick={onSubmit}
+        ></button>
+      )}
     </div>
   );
 };
