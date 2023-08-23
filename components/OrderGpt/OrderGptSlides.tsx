@@ -25,7 +25,7 @@ const deck: SlideCard[] = [
   },
   {
     image: "/Menu_order_3.png",
-    nextPageTrigger: /the lettuce/,
+    nextPageTrigger: /hold the lettuce/,
     voiceOverText:
       "Would you like your BBQ bacon burger with cheese, lettuce, tomato, and our signature sauce?",
   },
@@ -33,10 +33,11 @@ const deck: SlideCard[] = [
     image: "/no_lettuce_4.png",
     voiceOverText:
       "Of course, no lettuce. This item has been added to your order! Would you like to add sides to that?",
+    nextPageTrigger: /yes/,
   },
   {
-    image: "/truffle_7.png",
-    voiceOverText: "Would you like to add sides to that?",
+    image: "/starters_6.png",
+    voiceOverText: "What sides would you like?",
     nextPageTrigger: /truffle fries/,
   },
   {
