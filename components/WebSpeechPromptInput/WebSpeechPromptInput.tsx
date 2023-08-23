@@ -1,9 +1,11 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import ContentEditable from "react-contenteditable";
 import Image from "next/image";
+import classNames from "classnames";
 //import { webkitSpeechRecognition, SpeechRecognitionEvent, SpeechRecognitionErrorEvent } from 'dom-speech-recognition';
 
 interface WebSpeechPromptInputProps {
+  className?: string;
   isLoading?: boolean;
   prompt: string;
   onSubmit: () => void;
@@ -64,6 +66,7 @@ const showInfo = (s: string) => {
 };
 
 const WebSpeechPromptInput: React.FC<WebSpeechPromptInputProps> = ({
+  className,
   prompt,
   onSubmit,
   updatePrompt,
@@ -286,7 +289,7 @@ const WebSpeechPromptInput: React.FC<WebSpeechPromptInputProps> = ({
   }, [transcript]);
 
   return (
-    <div className="bg-neutral-800 rounded-xl w-full flex items-center justify-between">
+    <div className={classNames(className, "bg-neutral-800 rounded-xl w-full flex items-center justify-between")}>
       <div>
         <ContentEditable
           innerRef={contentEditableRef}
