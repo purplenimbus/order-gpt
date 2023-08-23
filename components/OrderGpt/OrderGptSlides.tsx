@@ -12,48 +12,48 @@ type SlideCard = {
 
 const deck: SlideCard[] = [
   {
-    image: "slides/idle_Screen_1.png",
+    image: "idle_Screen_1.png",
     nextPageTrigger: "I'm hungry",
     canTouch: true,
   },
   {
-    image: "slides/starters_6.png",
-    voiceOverText: "Welcome to Wahlburgers! Please begin by telling me what you'd like to order.",
+    image: "starters_6.png",
+    voiceOverText:
+      "Welcome to Wahlburgers! Please begin by telling me what you'd like to order.",
     nextPageTrigger: /bacon burger/,
     canTouch: true,
   },
   {
-    image: "slides/Menu_order_3.png",
+    image: "Menu_order_3.png",
     nextPageTrigger: /the lettuce/,
-    voiceOverText: "Would you like your BBQ bacon burger with cheese, lettuce, tomato, and our signature sauce?",
+    voiceOverText:
+      "Would you like your BBQ bacon burger with cheese, lettuce, tomato, and our signature sauce?",
   },
   {
-    image: "slides/no_lettuce_4.png",
-    voiceOverText: "Of course, no lettuce. This item has been added to your order!",
+    image: "no_lettuce_4.png",
+    voiceOverText:
+      "Of course, no lettuce. This item has been added to your order! Would you like to add sides to that?",
   },
   {
-    image: "slides/burger_added_5.png",
-    voiceOverText: "Do you want to add any starters?",
-    nextPageTrigger: /yes/,
-  },
-  {
-    image: "slides/menu_2items_8.png",
+    image: "truffle_7.png",
     voiceOverText: "Would you like to add sides to that?",
     nextPageTrigger: /truffle fries/,
   },
   {
-    image: "slides/truffle_7.png",
-    voiceOverText: "This has been added to your order. Do you want a drink with that? I'd recommend our freshly squeezed lemonade with this burger. It's a favorite among our regulars. Would you like to try it?",
+    image: "menu_3items_10.png",
+    voiceOverText:
+      "This has been added to your order. Do you want a drink with that? I'd recommend our freshly squeezed lemonade with this burger. It's a favorite among our regulars. Would you like to try it?",
     nextPageTrigger: /yes/,
   },
   {
-    image: "slides/lemonade_9.png",
+    image: "lemonade_9.png",
     voiceOverText: "This item has been added. Is there anything else you want?",
     nextPageTrigger: /no/,
   },
   {
-    image: "slides/finish_andpay_11.png",
-    voiceOverText: "Please click “finish and pay” to complete your order. Thanks for ordering!",
+    image: "finish_andpay_11.png",
+    voiceOverText:
+      "Please click “finish and pay” to complete your order. Thanks for ordering!",
   },
 ];
 
@@ -122,11 +122,19 @@ const OrderGptSlides = (props: OrderGptSlidesProps) => {
   }, [currentSlide, slideIndex, prompt]);
 
   return (
-    <div className="flex flex-col gap-3 max-w-2xl">
-      <div id="slide">
-        <img src={`/${currentSlide.image}`} />
-      </div>
+    <div
+      className="flex flex-col gap-3 w-full h-screen items-center justify-end p-6"
+      style={{
+        backgroundImage: `url(${currentSlide.image})`,
+        backgroundAttachment: "fixed",
+        backgroundRepeat: "no-repeat",
+        backgroundPositionY: "top",
+        backgroundPositionX: "center",
+        backgroundSize: "contain",
+      }}
+    >
       <WebSpeechPromptInput
+        className="max-w-xl opacity-75"
         prompt={prompt}
         onSubmit={onSubmit}
         key="prompt-input"

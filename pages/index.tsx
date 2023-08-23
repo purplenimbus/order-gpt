@@ -6,7 +6,7 @@ export default function Home() {
   const [showSlides, setShowSlides] = useState(true);
 
   return (
-    <main className="flex h-full min-h-screen flex-col items-center justify-between">
+    <main className="flex h-full min-h-screen flex-col items-center justify-between bg-white">
       {!showSlides && <OrderGpt />}
       {showSlides && <OrderGptSlides />}
       <div className="flex items-center gap-3">
