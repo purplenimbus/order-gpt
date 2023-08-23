@@ -3,7 +3,7 @@ import OrderGpt from "../components/OrderGpt/OrderGpt";
 import OrderGptSlides from "../components/OrderGpt/OrderGptSlides";
 
 export default function Home() {
-  const [showSlides, setShowSlides] = useState(false);
+  const [showSlides, setShowSlides] = useState(true);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24 gap-3">
