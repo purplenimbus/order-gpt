@@ -234,21 +234,26 @@ const WebSpeechPromptInput: React.FC<WebSpeechPromptInputProps> = ({
     <div
       className={classNames(
         className,
-        "bg-neutral-800 rounded-xl w-full flex items-center justify-between"
+        "bg-neutral-800 rounded-xl h-12 w-full flex items-center justify-between"
       )}
     >
-      <div>
+      <div className="flex flex-row w-full h-full">
         <ContentEditable
           innerRef={contentEditableRef}
           html={prompt}
           disabled={false}
           id="prompt-input"
-          className="prompt-input w-full"
+          className="prompt-input h-full"
           onChange={(event) => updatePrompt(event.target.value)}
         />
-        <br />
         <button style={{ display: "inline-block" }} onClick={onMicClick}>
-          <Image width={50} height={50} src={talkButtonImage} alt="Lets Talk" />
+          <Image
+            width={50}
+            height={50}
+            src={talkButtonImage}
+            className="rounded"
+            alt="Lets Talk"
+          />
         </button>
       </div>
     </div>
