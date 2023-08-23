@@ -12,47 +12,47 @@ type SlideCard = {
 
 const deck: SlideCard[] = [
   {
-    image: "slides/idle_Screen_1.png",
+    image: "idle_Screen_1.png",
     nextPageTrigger: "I'm hungry",
     canTouch: true,
   },
   {
-    image: "slides/starters_6.png",
+    image: "starters_6.png",
     voiceOverText: "Welcome to Wahlburgers! Please begin by telling me what you'd like to order.",
     nextPageTrigger: /bacon burger/,
     canTouch: true,
   },
   {
-    image: "slides/Menu_order_3.png",
+    image: "Menu_order_3.png",
     nextPageTrigger: /the lettuce/,
     voiceOverText: "Would you like your BBQ bacon burger with cheese, lettuce, tomato, and our signature sauce?",
   },
   {
-    image: "slides/no_lettuce_4.png",
+    image: "no_lettuce_4.png",
     voiceOverText: "Of course, no lettuce. This item has been added to your order!",
   },
   {
-    image: "slides/burger_added_5.png",
+    image: "burger_added_5.png",
     voiceOverText: "Do you want to add any starters?",
     nextPageTrigger: /yes/,
   },
   {
-    image: "slides/menu_2items_8.png",
+    image: "menu_2items_8.png",
     voiceOverText: "Would you like to add sides to that?",
     nextPageTrigger: /truffle fries/,
   },
   {
-    image: "slides/truffle_7.png",
+    image: "truffle_7.png",
     voiceOverText: "This has been added to your order. Do you want a drink with that? I'd recommend our freshly squeezed lemonade with this burger. It's a favorite among our regulars. Would you like to try it?",
     nextPageTrigger: /yes/,
   },
   {
-    image: "slides/lemonade_9.png",
+    image: "lemonade_9.png",
     voiceOverText: "This item has been added. Is there anything else you want?",
     nextPageTrigger: /no/,
   },
   {
-    image: "slides/finish_andpay_11.png",
+    image: "finish_andpay_11.png",
     voiceOverText: "Please click “finish and pay” to complete your order. Thanks for ordering!",
   },
 ];
