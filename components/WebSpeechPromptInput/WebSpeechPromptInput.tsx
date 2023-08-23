@@ -195,14 +195,20 @@ const WebSpeechPromptInput: React.FC<WebSpeechPromptInputProps> = ({
               transcript.interim += event.results[i][0].transcript;
             }
           }
-          console.log(`voice transcript: ${transcript.finale}`);
-          setTranscript(transcript);
-          setIdleTimer((oldTimer: number | undefined): number => {
-            if (oldTimer) {
-              clearTimeout(oldTimer);
-            }
-            return window.setTimeout(() => setIdleTimedOut(true), IDLE_TIMEOUT);
-          });
+
+          if (transcript.finale !== "") {
+            console.log(`voice transcript: ${transcript.finale}`);
+            setTranscript(transcript);
+            setIdleTimer((oldTimer: number | undefined): number => {
+              if (oldTimer) {
+                clearTimeout(oldTimer);
+              }
+              return window.setTimeout(
+                () => setIdleTimedOut(true),
+                IDLE_TIMEOUT
+              );
+            });
+          }
         };
         return r;
       });

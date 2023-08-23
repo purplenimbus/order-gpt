@@ -25,9 +25,9 @@ const deck: SlideCard[] = [
   },
   {
     image: "/Menu_order_3.png",
-    nextPageTrigger: /hold the lettuce/,
+    nextPageTrigger: /lettuce/,
     voiceOverText:
-      "Would you like your BBQ bacon burger with cheese, lettuce, tomato, and our signature sauce?",
+      "Your BBQ bacon burger comes with white cheddar, bacon, fresh jalapeños, BBQ sauce and avocado spread. Would you like to make any changes to BBQ bacon burger?",
   },
   {
     image: "/no_lettuce_4.png",

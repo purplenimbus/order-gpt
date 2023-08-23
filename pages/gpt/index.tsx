@@ -4,6 +4,7 @@ import WebSpeechPromptInput from "../../components/WebSpeechPromptInput/WebSpeec
 import { ResponseInterface } from "../../components/PromptResponseList/response-interface";
 import PromptResponseList from "../../components/PromptResponseList/PromptResponseList";
 import ApiClient from "../../api";
+import { BASE_CONVERSATION } from "../api/conversation";
 
 type ModelValueType = "gpt" | "codex" | "image";
 
@@ -13,7 +14,7 @@ type ConversationType = {
 };
 
 const OrderGpt = () => {
-  const [conversation, setConversation] = useState<ConversationType>();
+  const [conversation, setConversation] = useState<ConversationType[]>();
   const [initialized, setInitialized] = useState<boolean>(false);
   const [responseList, setResponseList] = useState<ResponseInterface[]>([]);
   const [prompt, setPrompt] = useState<string>("");
@@ -24,7 +25,7 @@ const OrderGpt = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [mentionedItems, setMentionedItems] = useState<string>("");
   const [order, setOrder] = useState<string>("");
-  const [ordered, setOrdered] = useState<boolean>();
+  const [context, setContext] = useState<string>("");
   let loadInterval: number | undefined;
 
   console.log("App");
@@ -175,8 +176,11 @@ const OrderGpt = () => {
     }
   };
 
-  const getSystemContext = async (prompt: string): Promise<string> => {
-    console.log(`getSystemContext`);
+  const askSystem = async (prompt: string): Promise<string> => {
+    if (!conversation || conversation.length === BASE_CONVERSATION.length) {
+      return "";
+    }
+
     // Send a POST request to the API with the prompt in the request body
     try {
       const response = await ApiClient.post("/system", {
@@ -184,7 +188,7 @@ const OrderGpt = () => {
         prompt,
         model: modelValue,
       });
-      console.log(`${prompt}: ${response.data.content}`);
+      console.log(`Ask System: ${prompt}: ${response.data.content}`);
       return response.data.content;
     } catch (err: any) {
       if (err instanceof Error) {
@@ -194,36 +198,46 @@ const OrderGpt = () => {
     }
   };
 
-  useEffect(() => {
-    setTimeout(async () => {
-      setMentionedItems(
-        await getSystemContext(
-          "What are the menu item names mentioned in the last prompt, using names that exactly match the menu, in a flat json array of string?"
-        )
-      );
-      setOrder(
-        await getSystemContext(`
-      What is the user\'s order only in this JSON format, using names that exactly match the menu, without any additional text?
+  /*
         {
           "customer_name": ...,
-          "menu_items": [ { "menu_item_name": ..., "quantity": ..., "toppings": [{ "name":..., "yes_or_no": ... }, ...], "bun": ... }, ... ]
+          "menu_items": [ { "menu_item_name": ..., "quantity": ..., "add_ons": [{ "name":..., "yes_or_no": ... }, ...], "bun": ... }, ... ]
           "sides": [ { "name": ..., "quantity": ... } ],
           "starters": [ { "name": ..., "quantity": ... } ],
           "salads": [ { "name": ..., "quantity": ..., "toppings": [{ "name":..., "yes_or_no"}], "dressing":... } ],
           "drinks": [ { "name": ..., "quantity": ... } ]
         }
-      If the user did not order anything yet, then leave the array empty.
+        */
+  useEffect(() => {
+    setTimeout(async () => {
+      setMentionedItems(
+        await askSystem(
+          "What are the menu item names mentioned in the last prompt, using names that exactly match the menu, in a flat json array of string?"
+        )
+      );
+      setOrder(
+        await askSystem(`
+      What is the user\'s order only in this JSON format, using names that exactly match the menu, without any additional text?
+        {
+          "customer_name": ...,
+          "menu_items": [ { "menu_item_name": ..., "quantity": ..., "add_ons": [{ "name":..., "yes_or_no": ... }, ...] }, ... ]
+        }
       `)
       );
-      setOrdered(
-        (await getSystemContext(
-          "Do you know what the customer ordered, reply in TRUE or FALSE without any other text?"
-        )) == "TRUE"
+      await askSystem(
+        "Do you know what the customer ordered, reply in TRUE or FALSE without any other text?"
       );
-      await getSystemContext(
+      await askSystem(
         "Do you know name of the user, reply in TRUE or FALSE without any other text?"
       );
-      await getSystemContext("What is the name of the user, in a string?");
+      await askSystem("What is the name of the user, in a string?");
+      setContext(
+        await askSystem(
+          `What is the last 1 prompt about, reply in JSON in this format, without any other text?
+          { "verb": ..., "noun": ...., "ordering_phase": greeting|questioning|ordering|confirming|completed }
+        `
+        )
+      );
     }, 0);
   }, [conversation]);
 
@@ -233,7 +247,7 @@ const OrderGpt = () => {
         <div className="overflow-x-scroll w-full flex flex-row">
           <JSONBox title="Mentioned Items" text={mentionedItems} />
           <JSONBox title="Order" text={order} />
-          <JSONBox title="Ordered?" text={ordered ? "true" : "false"} />
+          <JSONBox title="Context" text={context} />
         </div>
         <div id="response-list" className="overflow-y-auto">
           <PromptResponseList

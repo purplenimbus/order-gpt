@@ -9,12 +9,14 @@ const JSONBox: React.FC<JSONBoxProps> = ({ title, text: text }) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   let json: string | undefined = undefined;
 
-  try {
-    console.log("Parsing JSON Text:", text);
-    json = JSON.parse(text);
-  } catch (err) {
-    console.error("JSON Parsing error", err);
-    json = undefined;
+  if (text !== "") {
+    try {
+      console.log("Parsing JSON Text:", text);
+      json = JSON.parse(text);
+    } catch (err) {
+      console.error("JSON Parsing error", err);
+      json = undefined;
+    }
   }
 
   useEffect(() => {
