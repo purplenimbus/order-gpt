@@ -12,7 +12,7 @@ type SlideCard = {
 
 const deck: SlideCard[] = [
   {
-    image: "/idle_Screen_1.png",
+    image: "/Idle_Screen_1.png",
     nextPageTrigger: "I'm hungry",
     canTouch: true,
   },
