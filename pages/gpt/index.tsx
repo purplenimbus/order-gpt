@@ -255,15 +255,10 @@ const OrderGpt = () => {
         )}
         <WebSpeechPromptInput
           prompt={prompt}
-          onSubmit={() => getGPTResult()}
+          onSubmit={getGPTResult}
           key="prompt-input"
-          updatePrompt={(prompt) => {
-            console.log(`updatePrompt:${prompt}`);
-            setPrompt(prompt);
-          }}
-          speaking={isSpeaking}
-          isLoading={isLoading}
-          showSubmit
+          updatePrompt={setPrompt}
+          pause={isSpeaking}
         />
       </div>
     </main>

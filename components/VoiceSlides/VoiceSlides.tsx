@@ -79,7 +79,7 @@ const VoiceSlides = (props: VoiceSlidesProps) => {
           if (!synth.speaking) {
             setIsSpeaking(false);
           } else {
-            setTimeout(checkSpeaking, 200);
+            setTimeout(checkSpeaking, 500);
           }
         };
         setTimeout(checkSpeaking, 2000);
@@ -89,10 +89,10 @@ const VoiceSlides = (props: VoiceSlidesProps) => {
   );
 
   useEffect(() => {
+    setIsTransitioning(false);
     if (currentSlide.voiceOverText) {
       speak(currentSlide.voiceOverText);
     }
-    setTimeout(() => setIsTransitioning(false), 5000);
   }, [slideIndex, currentSlide, speak]);
 
   const onSubmit = useCallback(() => {
@@ -139,11 +139,8 @@ const VoiceSlides = (props: VoiceSlidesProps) => {
         prompt={prompt}
         onSubmit={onSubmit}
         key="prompt-input"
-        updatePrompt={(prompt) => {
-          console.log(`updatePrompt:${prompt}`);
-          setPrompt(prompt);
-        }}
-        speaking={isTransitioning || isSpeaking}
+        updatePrompt={setPrompt}
+        pause={isTransitioning || isSpeaking}
       />
     </div>
   );

@@ -2,16 +2,15 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import ContentEditable from "react-contenteditable";
 import Image from "next/image";
 import classNames from "classnames";
-//import { webkitSpeechRecognition, SpeechRecognitionEvent, SpeechRecognitionErrorEvent } from 'dom-speech-recognition';
 
 interface WebSpeechPromptInputProps {
   className?: string;
-  isLoading?: boolean;
   prompt: string;
   onSubmit: () => void;
   updatePrompt: (prompt: string) => void;
-  speaking?: boolean;
-  showSubmit?: boolean;
+  pause?: boolean;
+  onPaused?: () => void;
+  onResumed?: () => void;
 }
 
 const IDLE_TIMEOUT = 2000;
@@ -41,18 +40,14 @@ const showInfo = (s: string) => {
       'No microphone was found. Ensure that a microphone is installed and that <a href="//support.google.com/chrome/answer/2693767" target="_blank">microphone settings</a> are configured correctly.',
     ],
     ["allow", 'Click the "Allow" button above to enable your microphone.'],
-    ["denied", "Permission to use microphone was denied."],
-    [
-      "blocked",
-      "Permission to use microphone is blocked. To change, go to chrome://settings/content/microphone",
-    ],
+    ["not-allowed", "Permission to use microphone was denied."],
     [
       "upgrade",
       'Web Speech API is not supported by this browser. It is only supported by <a href="//www.google.com/chrome">Chrome</a> version 25 or later on desktop and Android mobile.',
     ],
     ["stop", "Stop listening, click on the microphone icon to restart"],
     ["copy", "Content copy to clipboard successfully."],
-    ["end_prompt", "Prompt end...submit to GPT"],
+    ["end_prompt", "Prompt end...submitting"],
   ]);
 
   if (s) {
@@ -70,75 +65,42 @@ const WebSpeechPromptInput: React.FC<WebSpeechPromptInputProps> = ({
   prompt,
   onSubmit,
   updatePrompt,
-  speaking,
-  isLoading = false,
-  showSubmit = false,
+  pause,
+  onPaused,
+  onResumed,
 }) => {
   const [talkButtonImage, setTalkButtonImage] = useState<string>("/mic.gif");
   const [recognition, setRecognition] = useState<any>();
   const [recognizing, setRecognizing] = useState<boolean>(false);
-  const [startTimestamp, setStartTimestamp] = useState<number>();
   const [readyToSubmit, setReadyToSubmit] = useState(false);
   const [transcript, setTranscript] = useState<{
     interim: string;
     finale: string;
   }>({ interim: "", finale: "" });
-  const [idleTimer, setIdleTimer] = useState<number>();
+  const [, setIdleTimer] = useState<number>();
   const [idleTimedOut, setIdleTimedOut] = useState<boolean>(false);
   const [enableSpeech, setEnableSpeech] = useState<boolean>(false);
-
-  console.debug(`component prompt arg: ${prompt} ${speaking}`);
-
-  const upgrade = useCallback((): void => {
-    showInfo("upgrade");
-  }, []);
 
   useEffect(() => {
     if (!recognition) {
       return;
     }
-    if (enableSpeech && !speaking && !recognizing) {
-      console.log(
-        `start speech recogition: ${recognition} recoginizing: ${recognizing} prompt: ${prompt}`
-      );
+    if (enableSpeech && !pause && !recognizing && !readyToSubmit) {
+      console.log("starting recognition...");
       contentEditableRef?.current?.focus();
-
-      console.log("start recognition");
       recognition.lang = "en-US";
       recognition.start();
       setTalkButtonImage("/mic-slash.gif");
       showInfo("allow");
-      setStartTimestamp(Date.now());
-    } else if ((!enableSpeech || speaking) && recognizing) {
-      console.log("stopping...");
+    } else if ((!enableSpeech || pause) && recognizing) {
+      console.log("stopping recognition...");
       recognition.stop();
       return;
     }
-  }, [speaking, recognition, recognizing, enableSpeech]);
+  }, [pause, recognition, recognizing, enableSpeech, readyToSubmit]);
 
   const onMicClick = useCallback(
-    (event: React.MouseEvent) => {
-      setEnableSpeech((value) => !value);
-      /*
-    console.log(`onMicClick: recogition: ${recognition} recoginizing: ${recognizing} prompt: ${prompt}`);
-    contentEditableRef?.current?.focus();
-
-    if (!recognition) {
-      return;
-    }
-    if (recognizing) {
-      console.log('stopping...');
-      recognition.stop();
-      return;
-    }
-    console.log('start recognition');
-    recognition.lang = 'en-US';
-    recognition.start();
-    setTalkButtonImage(micSlash);
-    showInfo('allow');
-    setStartTimestamp(event.timeStamp);
-    */
-    },
+    (event: React.MouseEvent) => setEnableSpeech((value) => !value),
     [enableSpeech]
   );
 
@@ -146,8 +108,10 @@ const WebSpeechPromptInput: React.FC<WebSpeechPromptInputProps> = ({
     if (!readyToSubmit) {
       return;
     }
-    console.log(`ready to submit: ${prompt}`);
-    onSubmit();
+    if (prompt !== "") {
+      console.log(`Submiting voice prompt: ${prompt}`);
+      onSubmit();
+    }
     setReadyToSubmit(false);
   }, [prompt, readyToSubmit, onSubmit]);
 
@@ -168,21 +132,6 @@ const WebSpeechPromptInput: React.FC<WebSpeechPromptInputProps> = ({
 
   const contentEditableRef = useRef<HTMLDivElement>(null);
 
-  const recognitionOnStart = useCallback(() => {
-    console.log("At start prompt:", prompt);
-    setRecognizing(true);
-    showInfo("speak_now");
-    setTalkButtonImage("/mic-slash.gif");
-  }, [prompt]);
-
-  const recognitionOnEnd = useCallback(() => {
-    console.log(`At end: recognizing:${recognizing} prompt:${prompt}`);
-    setRecognizing(false);
-    setTalkButtonImage("/mic.gif");
-    showInfo("stop");
-    setReadyToSubmit(true);
-  }, [prompt, recognizing]);
-
   useEffect(() => {
     if (idleTimedOut) {
       console.log(`on idle timeout ${recognition} ${recognizing}`);
@@ -195,11 +144,9 @@ const WebSpeechPromptInput: React.FC<WebSpeechPromptInputProps> = ({
   }, [idleTimedOut, recognition, recognizing]);
 
   useEffect(() => {
-    console.log(
-      `useEffect: recognition ${recognition} recognizing ${recognizing} prompt:${prompt}`
-    );
+    console.log(`Initializing Speech Recognition: ${recognition}`);
     if (!("webkitSpeechRecognition" in window)) {
-      upgrade();
+      showInfo("upgrade");
     } else if (!recognition) {
       setRecognition(() => {
         const r = new webkitSpeechRecognition();
@@ -208,23 +155,26 @@ const WebSpeechPromptInput: React.FC<WebSpeechPromptInputProps> = ({
         r.interimResults = true;
 
         r.onstart = () => {
-          console.log("At start prompt:", prompt);
           showInfo("speak_now");
           setTalkButtonImage("/mic-animation.gif");
           setRecognizing(true);
+          if (onResumed) {
+            onResumed();
+          }
         };
         r.onend = () => {
-          console.log(`At end: recognizing:${recognizing} prompt:${prompt}`);
           setRecognizing(false);
           setTalkButtonImage("/mic.gif");
           showInfo("stop");
           setReadyToSubmit(true);
+          if (onPaused) {
+            onPaused();
+          }
         };
         r.onerror = (event: SpeechRecognitionErrorEvent) => {
           if (event.error === "no-speech") {
             setTalkButtonImage("/mic.gif");
             showInfo("no_speech");
-            console.log(`no speech: prompt ${prompt}`);
             setReadyToSubmit(true);
           }
           if (event.error === "audio-capture") {
@@ -232,11 +182,7 @@ const WebSpeechPromptInput: React.FC<WebSpeechPromptInputProps> = ({
             showInfo("no_microphone");
           }
           if (event.error === "not-allowed") {
-            if (startTimestamp && event.timeStamp - startTimestamp < 100) {
-              showInfo("blocked");
-            } else {
-              showInfo("denied");
-            }
+            showInfo("not-allowed");
           }
         };
         r.onresult = (event: SpeechRecognitionEvent) => {
@@ -261,17 +207,7 @@ const WebSpeechPromptInput: React.FC<WebSpeechPromptInputProps> = ({
         return r;
       });
     }
-  }, [
-    prompt,
-    recognition,
-    recognizing,
-    onSubmit,
-    updatePrompt,
-    upgrade,
-    startTimestamp,
-    recognitionOnStart,
-    recognitionOnEnd,
-  ]);
+  }, [recognition, onSubmit, updatePrompt]);
 
   useEffect(() => {
     window.addEventListener("keydown", checkKeyPress);
@@ -282,9 +218,9 @@ const WebSpeechPromptInput: React.FC<WebSpeechPromptInputProps> = ({
 
   useEffect(() => {
     // transcript changes
-    console.log(`transcript changes: ${transcript.finale}`);
     if (transcript.finale !== "") {
-      updatePrompt((prompt += transcript.finale));
+      console.log(`transcript changes: ${transcript.finale}`);
+      updatePrompt(transcript.finale);
     }
   }, [transcript]);
 
@@ -309,13 +245,6 @@ const WebSpeechPromptInput: React.FC<WebSpeechPromptInputProps> = ({
           <Image width={50} height={50} src={talkButtonImage} alt="Lets Talk" />
         </button>
       </div>
-      {showSubmit && (
-        <button
-          id="submit-button"
-          className={isLoading ? "loading" : ""}
-          onClick={onSubmit}
-        ></button>
-      )}
     </div>
   );
 };
