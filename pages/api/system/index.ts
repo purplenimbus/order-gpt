@@ -15,13 +15,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<any>) => {
       const { prompt, conversation, model = "gpt" } = req.body;
 
       // Check if prompt is present in the request
-      if (!prompt) {
+      if (!prompt || !conversation) {
         // Send a 400 status code and a message indicating that the prompt is missing
         return res
           .status(400)
           .send({ error: "Prompt is missing in the request" });
       }
-      conversation.push({ role: "user", content: prompt });
+      conversation.push({ role: "system", content: prompt });
 
       try {
         const completion = await openai.chat.completions.create({

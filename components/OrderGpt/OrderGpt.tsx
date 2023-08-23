@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import JSONBox from "../JSONBox/JSONBox";
 import WebSpeechPromptInput from "../WebSpeechPromptInput/WebSpeechPromptInput";
 import { ResponseInterface } from "../PromptResponseList/response-interface";
 import PromptResponseList from "../PromptResponseList/PromptResponseList";
@@ -21,6 +22,9 @@ const OrderGpt = () => {
   const [modelValue, setModelValue] = useState<ModelValueType>("gpt");
   const [isLoading, setIsLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [mentionedItems, setMentionedItems] = useState<string>("");
+  const [order, setOrder] = useState<string>("");
+  const [ordered, setOrdered] = useState<boolean>();
   let loadInterval: number | undefined;
 
   console.log("App");
@@ -171,9 +175,66 @@ const OrderGpt = () => {
     }
   };
 
+  const getSystemContext = async (prompt: string): Promise<string> => {
+    console.log(`getSystemContext`);
+    // Send a POST request to the API with the prompt in the request body
+    try {
+      const response = await ApiClient.post("/system", {
+        conversation,
+        prompt,
+        model: modelValue,
+      });
+      console.log(`${prompt}: ${response.data.content}`);
+      return response.data.content;
+    } catch (err: any) {
+      if (err instanceof Error) {
+        console.error(`API Error: ${prompt} - ${err.message}`);
+      }
+      return "";
+    }
+  };
+
+  useEffect(() => {
+    setTimeout(async () => {
+      setMentionedItems(
+        await getSystemContext(
+          "What are the menu item names mentioned in the last prompt, using names that exactly match the menu, in a flat json array of string?"
+        )
+      );
+      setOrder(
+        await getSystemContext(`
+      What is the user\'s order only in this JSON format, using names that exactly match the menu, without any additional text?
+        {
+          "customer_name": ...,
+          "menu_items": [ { "menu_item_name": ..., "quantity": ..., "toppings": [{ "name":..., "yes_or_no": ... }, ...], "bun": ... }, ... ]
+          "sides": [ { "name": ..., "quantity": ... } ],
+          "starters": [ { "name": ..., "quantity": ... } ],
+          "salads": [ { "name": ..., "quantity": ..., "toppings": [{ "name":..., "yes_or_no"}], "dressing":... } ],
+          "drinks": [ { "name": ..., "quantity": ... } ]
+        }
+      If the user did not order anything yet, then leave the array empty.
+      `)
+      );
+      setOrdered(
+        (await getSystemContext(
+          "Do you know what the customer ordered, reply in TRUE or FALSE without any other text?"
+        )) == "TRUE"
+      );
+      await getSystemContext(
+        "Do you know name of the user, reply in TRUE or FALSE without any other text?"
+      );
+      await getSystemContext("What is the name of the user, in a string?");
+    }, 0);
+  }, [conversation]);
+
   return (
-    <div className="flex flex-col gap-3">
-      <div id="response-list">
+    <div className="flex flex-col gap-3 grow w-full max-w-7xl overflow-x-auto px-8">
+      <div className="overflow-x-scroll w-full flex flex-row">
+        <JSONBox title="Mentioned Items" text={mentionedItems} />
+        <JSONBox title="Order" text={order} />
+        <JSONBox title="Ordered?" text={ordered ? "true" : "false"} />
+      </div>
+      <div id="response-list" className="overflow-y-auto">
         <PromptResponseList
           responseList={responseList}
           onSpeaking={(speaking: boolean) => setIsSpeaking(speaking)}
@@ -191,27 +252,6 @@ const OrderGpt = () => {
           </button>
         </div>
       )}
-      <div className="bg-transparent border-0 text-white outline-none flex flex-col gap-1">
-        <label htmlFor="model-select">Select model:</label>
-        <select
-          className="bg-transparent border-0 text-white outline-none"
-          value={modelValue}
-          onChange={(event) =>
-            setModelValue(event.target.value as ModelValueType)
-          }
-        >
-          <option value="gpt">
-            GPT-3 (Understand and generate natural language )
-          </option>
-          <option value="codex">
-            Codex (Understand and generate code, including translating natural
-            language to code)
-          </option>
-          <option value="image">
-            Create Image (Create AI image using DALL·E models)
-          </option>
-        </select>
-      </div>
       <WebSpeechPromptInput
         prompt={prompt}
         onSubmit={() => getGPTResult()}
