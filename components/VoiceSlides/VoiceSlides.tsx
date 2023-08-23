@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import WebSpeechPromptInput from "../WebSpeechPromptInput/WebSpeechPromptInput";
 
-type OrderGptSlidesProps = {};
+type VoiceSlidesProps = {};
 
 type SlideCard = {
   image: string;
@@ -58,7 +58,7 @@ const deck: SlideCard[] = [
   },
 ];
 
-const OrderGptSlides = (props: OrderGptSlidesProps) => {
+const VoiceSlides = (props: VoiceSlidesProps) => {
   const [prompt, setPrompt] = useState<string>("");
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -149,4 +149,4 @@ const OrderGptSlides = (props: OrderGptSlidesProps) => {
   );
 };
 
-export default OrderGptSlides;
+export default VoiceSlides;

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import JSONBox from "../JSONBox/JSONBox";
-import WebSpeechPromptInput from "../WebSpeechPromptInput/WebSpeechPromptInput";
-import { ResponseInterface } from "../PromptResponseList/response-interface";
-import PromptResponseList from "../PromptResponseList/PromptResponseList";
+import JSONBox from "../../components/JSONBox/JSONBox";
+import WebSpeechPromptInput from "../../components/WebSpeechPromptInput/WebSpeechPromptInput";
+import { ResponseInterface } from "../../components/PromptResponseList/response-interface";
+import PromptResponseList from "../../components/PromptResponseList/PromptResponseList";
 import ApiClient from "../../api";
 
 type ModelValueType = "gpt" | "codex" | "image";
@@ -228,43 +228,45 @@ const OrderGpt = () => {
   }, [conversation]);
 
   return (
-    <div className="flex flex-col gap-3 grow w-full max-w-7xl overflow-x-auto px-8">
-      <div className="overflow-x-scroll w-full flex flex-row">
-        <JSONBox title="Mentioned Items" text={mentionedItems} />
-        <JSONBox title="Order" text={order} />
-        <JSONBox title="Ordered?" text={ordered ? "true" : "false"} />
-      </div>
-      <div id="response-list" className="overflow-y-auto">
-        <PromptResponseList
-          responseList={responseList}
-          onSpeaking={(speaking: boolean) => setIsSpeaking(speaking)}
-          key="response-list"
+    <main className="flex h-full min-h-screen flex-col items-center justify-between">
+      <div className="flex flex-col gap-3 grow w-full max-w-7xl overflow-x-auto px-8">
+        <div className="overflow-x-scroll w-full flex flex-row">
+          <JSONBox title="Mentioned Items" text={mentionedItems} />
+          <JSONBox title="Order" text={order} />
+          <JSONBox title="Ordered?" text={ordered ? "true" : "false"} />
+        </div>
+        <div id="response-list" className="overflow-y-auto">
+          <PromptResponseList
+            responseList={responseList}
+            onSpeaking={(speaking: boolean) => setIsSpeaking(speaking)}
+            key="response-list"
+          />
+        </div>
+        {uniqueIdToRetry && (
+          <div id="regenerate-button-container">
+            <button
+              id="regenerate-response-button"
+              className={isLoading ? "loading" : ""}
+              onClick={() => regenerateResponse()}
+            >
+              Regenerate Response
+            </button>
+          </div>
+        )}
+        <WebSpeechPromptInput
+          prompt={prompt}
+          onSubmit={() => getGPTResult()}
+          key="prompt-input"
+          updatePrompt={(prompt) => {
+            console.log(`updatePrompt:${prompt}`);
+            setPrompt(prompt);
+          }}
+          speaking={isSpeaking}
+          isLoading={isLoading}
+          showSubmit
         />
       </div>
-      {uniqueIdToRetry && (
-        <div id="regenerate-button-container">
-          <button
-            id="regenerate-response-button"
-            className={isLoading ? "loading" : ""}
-            onClick={() => regenerateResponse()}
-          >
-            Regenerate Response
-          </button>
-        </div>
-      )}
-      <WebSpeechPromptInput
-        prompt={prompt}
-        onSubmit={() => getGPTResult()}
-        key="prompt-input"
-        updatePrompt={(prompt) => {
-          console.log(`updatePrompt:${prompt}`);
-          setPrompt(prompt);
-        }}
-        speaking={isSpeaking}
-        isLoading={isLoading}
-        showSubmit
-      />
-    </div>
+    </main>
   );
 };
 
