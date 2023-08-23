@@ -202,3 +202,16 @@ body {
 .hljs-link, .hljs-operator, .hljs-regexp, .hljs-selector-attr, .hljs-selector-pseudo, .hljs-symbol, .hljs-template-variable, .hljs-variable {
   color: white !important;
 }
+
+#slide {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  text-align: center;
+}
+
+#slide img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}

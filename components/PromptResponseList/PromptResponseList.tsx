@@ -55,25 +55,25 @@ const PromptResponseList: FC<PromptResponseListProps> = ({
   }, [responseList]);
 
   return (
-    <div className="prompt-response-list" ref={responseListRef}>
+    <div className="flex flex-col gap-3" ref={responseListRef}>
       {responseList.map((responseData, index) => (
         <div
           className={
-            "response-container " +
+            "flex items-start gap-3 text-white" +
             (responseData.selfFlag ? "my-question" : "chatgpt-response")
           }
           key={responseData.id}
         >
-          <Image
+          {<Image
             height={10}
             width={10}
-            className="avatar-image"
+            className="w-10 h-10 rounded-xl"
             src={"/chatgpt.png"}
             alt="avatar"
-          />
+          />}
           <div
             className={
-              (responseData.error ? "error-response " : "") + "prompt-content"
+              (responseData.error ? "error-response " : "") + "prompt-content text-white"
             }
             id={responseData.id}
           >
