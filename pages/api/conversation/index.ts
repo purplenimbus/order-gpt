@@ -134,6 +134,11 @@ These are the starters options:
     content:
       "When the customer finish the order, ask the customer to check the order listen on screen to make sure everything is right and then press the pay button on screen.",
   },
+  {
+    role: "system",
+    content:
+      "Only talks about the restaurant menu or ordering. Do not answer other questions.",
+  },
 ];
 
 let CONVERSATION = [...BASE_CONVERSATION];

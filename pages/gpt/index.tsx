@@ -212,7 +212,7 @@ const OrderGpt = () => {
     setTimeout(async () => {
       setMentionedItems(
         await askSystem(
-          "What are the menu item names mentioned in the last prompt, using names that exactly match the menu, in a flat json array of string?"
+          "What are the menu item names mentioned in the last 2 prompts, using names that exactly match the menu, in a flat json array of string?"
         )
       );
       setOrder(
@@ -233,8 +233,8 @@ const OrderGpt = () => {
       await askSystem("What is the name of the user, in a string?");
       setContext(
         await askSystem(
-          `What is the last 1 prompt about, reply in JSON in this format, without any other text?
-          { "verb": ..., "noun": ...., "ordering_phase": greeting|questioning|ordering|confirming|completed }
+          `What was talked about in the last 2 prompts, reply in JSON in this format, without any other text?
+          { "verb": ..., "noun": ...., "menu_items": [...], "ordering_phase": greeting|questioning|ordering|confirming|completed }
         `
         )
       );
@@ -268,6 +268,7 @@ const OrderGpt = () => {
           </div>
         )}
         <WebSpeechPromptInput
+          className="my-4"
           prompt={prompt}
           onSubmit={getGPTResult}
           key="prompt-input"
